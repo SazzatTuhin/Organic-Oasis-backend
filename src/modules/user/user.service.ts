@@ -19,6 +19,18 @@ const register = async (userData: IUser): Promise<IUser> => {
   return await user.save();
 };
 
+const login = async (email: string, password: string): Promise<IUser> => {
+  const user = await UserModel.findOne({ email });
+  if (!user) {
+    throw new Error("User with this email does not exist");
+  }
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    throw new Error("Incorrect password");
+  }
+  return user;
+};
 export const UserServices = {
   register,
+  login,
 };
