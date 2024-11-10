@@ -15,5 +15,10 @@ router.post(
   validate(UserValidations.loginSchema),
   UserControllers.login
 );
+router.post(
+  "/refresh-token",
+  validate(UserValidations.loginSchema),
+  UserControllers.refreshToken
+);
 
 export default router;

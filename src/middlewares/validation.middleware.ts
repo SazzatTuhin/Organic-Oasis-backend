@@ -1,11 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { ZodError } from "zod";
+import { AnyZodObject, ZodError } from "zod";
 
-export const validate = (schema: any) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
+export const validate = (schema: AnyZodObject) => {
+  return async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
-      schema.parse({ req.body});
+      await schema.parseAsync({ ...req.body, ...req.cookies });
       next();
     } catch (error) {
       if (error instanceof ZodError) {

@@ -5,6 +5,7 @@ import morgan from "morgan";
 import connectDB from "./config/db";
 import config from "./config/index";
 import router from "./routes";
+import cookieParser from "cookie-parser";
 
 class Server {
   private app: Application;
@@ -28,6 +29,7 @@ class Server {
     this.app.use(helmet());
     this.app.use(cors());
     this.app.use(express.json());
+    this.app.use(cookieParser());
     this.app.use(morgan("combined"));
   }
 
