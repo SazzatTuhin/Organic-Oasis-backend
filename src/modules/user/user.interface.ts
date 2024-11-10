@@ -1,3 +1,4 @@
+import { USER_ROLE } from "./user.constant";
 import { ObjectId } from "mongodb";
 
 export interface IUser {
@@ -12,3 +13,4 @@ export interface IUser {
   createdAt: Date;
   updatedAt: Date;
 }
+export type TuserRole = keyof typeof USER_ROLE;
