@@ -1,19 +1,20 @@
-import { JwtPayload } from "jsonwebtoken";
-import { verifyToken } from "./../../utils/jwt.util";
 import bcrypt from "bcrypt";
+import { StatusCodes } from "http-status-codes";
+import { JwtPayload } from "jsonwebtoken";
+import config from "../../config/env";
+import AppError from "../../errors/app.error";
+import { createToken, verifyToken } from "../../utils/jwt.util";
 import { IUser } from "./user.interface";
 import UserModel from "./user.model";
-import { createToken } from "../../utils/jwt.util";
-import config from "../../config";
-import userModel from "./user.model";
-import { StatusCodes } from "http-status-codes";
-import AppError from "../../errors/app.error";
 
 const register = async (userData: IUser) => {
   const existingUser = await UserModel.findOne({ email: userData.email });
 
   if (existingUser) {
-    throw new Error("User with this email already exists");
+    throw new AppError(
+      StatusCodes.CONFLICT,
+      "User with this email already exists"
+    );
   }
 
   const hashedPassword = await bcrypt.hash(userData.password, 12);
@@ -25,19 +26,19 @@ const register = async (userData: IUser) => {
 
   await user.save();
 
-  const jwtpayload = {
+  const jwtPayload = {
     userId: user.id,
     role: user.role,
   };
 
   const accessToken = createToken(
-    jwtpayload,
+    jwtPayload,
     config.jwt_access_secret as string,
     config.jwt_access_expires_in as string
   );
 
   const refreshToken = createToken(
-    jwtpayload,
+    jwtPayload,
     config.jwt_refresh_secret as string,
     config.jwt_refresh_expires_in as string
   );
@@ -47,26 +48,33 @@ const register = async (userData: IUser) => {
 
 const login = async (email: string, password: string) => {
   const user = await UserModel.findOne({ email });
+
   if (!user) {
-    throw new Error("User with this email does not exist");
+    throw new AppError(
+      StatusCodes.NOT_FOUND,
+      "User with this email does not exist"
+    );
   }
+
   const isPasswordValid = await bcrypt.compare(password, user.password);
+
   if (!isPasswordValid) {
-    throw new Error("Incorrect password");
+    throw new AppError(StatusCodes.FORBIDDEN, "Incorrect password");
   }
-  const jwtpayload = {
+
+  const jwtPayload = {
     userId: user.id,
     role: user.role,
   };
 
   const accessToken = createToken(
-    jwtpayload,
+    jwtPayload,
     config.jwt_access_secret as string,
     config.jwt_access_expires_in as string
   );
 
   const refreshToken = createToken(
-    jwtpayload,
+    jwtPayload,
     config.jwt_refresh_secret as string,
     config.jwt_refresh_expires_in as string
   );
@@ -75,24 +83,24 @@ const login = async (email: string, password: string) => {
 };
 
 const refreshToken = async (token: string) => {
-  const decoded = verifyToken(
+  const { userId } = verifyToken(
     token,
     config.jwt_refresh_secret as string
   ) as JwtPayload;
 
-  const user = await userModel.findById(decoded.userId);
+  const user = await UserModel.findById(userId);
 
   if (!user) {
-    throw new AppError(StatusCodes.NOT_FOUND, "User Not Found");
+    throw new AppError(StatusCodes.NOT_FOUND, "User not found");
   }
 
-  const JwtPayload = {
+  const jwtPayload = {
     userId: user.id,
     role: user.role,
   };
 
   const accessToken = createToken(
-    JwtPayload,
+    jwtPayload,
     config.jwt_access_secret as string,
     config.jwt_access_expires_in as string
   );
@@ -100,8 +108,41 @@ const refreshToken = async (token: string) => {
   return { accessToken };
 };
 
+const getAllUsers = async (): Promise<IUser[]> => {
+  const users = await UserModel.find();
+
+  if (!users) {
+    throw new AppError(StatusCodes.NOT_FOUND, "No user found");
+  }
+
+  return users;
+};
+
+const getAnUser = async (userId: string): Promise<IUser> => {
+  const user = await UserModel.findById(userId);
+
+  if (!user) {
+    throw new AppError(StatusCodes.NOT_FOUND, "User not found");
+  }
+
+  return user;
+};
+
+const updateAnUser = async (userId: string, userData: Partial<IUser>) => {
+  const updatedUser = await UserModel.findByIdAndUpdate(
+    userId,
+    { $set: userData },
+    { new: true }
+  );
+
+  return updatedUser;
+};
+
 export const UserServices = {
   register,
   login,
   refreshToken,
+  getAllUsers,
+  getAnUser,
+  updateAnUser,
 };

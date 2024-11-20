@@ -1,5 +1,5 @@
-import { USER_ROLE } from "./user.constant";
 import { ObjectId } from "mongodb";
+import { USER_ROLE } from "./user.constant";
 
 export interface IUser {
   _id: ObjectId;
@@ -9,8 +9,9 @@ export interface IUser {
   password: string;
   image: string;
   address: string;
-  role: "USER" | "ADMIN";
+  role: "user" | "admin";
   createdAt: Date;
   updatedAt: Date;
 }
-export type TuserRole = keyof typeof USER_ROLE;
+
+export type TUserRole = keyof typeof USER_ROLE;
