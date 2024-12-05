@@ -39,9 +39,8 @@ const createCategory = async (categoryData: ICategory): Promise<ICategory> => {
 };
 
 const getSingleCategory = async (categoryId: string): Promise<ICategory> => {
-  const category = await CategoryModel.findById(categoryId).populate(
-    "products"
-  );
+  const category =
+    await CategoryModel.findById(categoryId).populate("products");
 
   if (!category) {
     throw new AppError(StatusCodes.NOT_FOUND, "Category not found");

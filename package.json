@@ -4,8 +4,21 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "node dist/server.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts"
+    "lint:check": "eslint . --ext .js,.ts --config .eslintrc-config.js",
+    "lint:fix": "eslint . --ext .js,.ts --fix --config .eslintrc-config.js",
+    "prettier:check": "prettier --check .",
+    "prettier:fix": "prettier --write .",
+    "prepare": "husky"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": ".husky/pre-commit"
+    }
   },
   "keywords": [],
   "author": "",
@@ -21,7 +34,6 @@
     "http-status-codes": "^2.3.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.0",
-    "morgan": "^1.10.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -32,6 +44,15 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.8.7",
+    "@typescript-eslint/eslint-plugin": "^6.5.0",
+    "@typescript-eslint/parser": "^6.5.0",
+    "eslint": "^8.48.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-prettier": "^5.0.0",
+    "husky": "^9.1.7",
+    "morgan": "^1.10.0",
+    "prettier": "^3.0.3",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.6.3"
   }
