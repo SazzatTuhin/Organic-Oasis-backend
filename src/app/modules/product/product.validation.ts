@@ -5,7 +5,7 @@ const createProductSchema = z.object({
   description: z
     .string()
     .min(1, { message: "Product description is required." }),
-  image: z.string().url(),
+  image: z.string().url().optional(),
   price: z.number().positive({ message: "Price must be a positive number." }),
   stock: z
     .number()
